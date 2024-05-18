@@ -173,6 +173,7 @@ set(EXAMPLES
 	vertexattributes
 	viewportarray
 	vulkanscene
+	vkDemoPBR
 )
 
 buildExamples()
