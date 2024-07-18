@@ -44,6 +44,7 @@ void main()
 	{
 		if (i + gl_LocalInvocationID.x < ubo.particleCount)
 		{
+			// copy data from global memory to shared memory
 			sharedData[gl_LocalInvocationID.x] = particles[i + gl_LocalInvocationID.x].pos;
 		}
 		else
@@ -51,6 +52,7 @@ void main()
 			sharedData[gl_LocalInvocationID.x] = vec4(0.0);
 		}
 
+		// memoryBarrierShared() and barrier() occur mostly together.
 		memoryBarrierShared();
 		barrier();
 
@@ -58,6 +60,7 @@ void main()
 		{
 			vec4 other = sharedData[j];
 			vec3 len = other.xyz - position.xyz;
+			// Gravitational force formula
 			acceleration.xyz += ubo.gravity * len * other.w / pow(dot(len, len) + ubo.soften, ubo.power);
 		}
 
