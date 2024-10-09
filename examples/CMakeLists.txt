@@ -147,6 +147,7 @@ set(EXAMPLES
 	raytracingsbtdata
 	raytracingshadows
 	raytracingtextures
+	raytracingscene
 	renderheadless
 	screenshot
 	shaderobjects
