@@ -1591,3 +1591,15 @@ void vkglTF::Model::prepareNodeDescriptor(vkglTF::Node* node, VkDescriptorSetLay
 		prepareNodeDescriptor(child, descriptorSetLayout);
 	}
 }
+
+vkglTF::Node* vkglTF::Model::findRoot()
+{
+	if (nodes.empty())
+		return nullptr;
+	auto root = nodes[0];
+	while (root->parent)
+	{
+		root = root->parent;
+	}
+	return root;
+}

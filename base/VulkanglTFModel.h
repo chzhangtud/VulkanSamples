@@ -312,5 +312,8 @@ namespace vkglTF
 		Node* findNode(Node* parent, uint32_t index);
 		Node* nodeFromIndex(uint32_t index);
 		void prepareNodeDescriptor(vkglTF::Node* node, VkDescriptorSetLayout descriptorSetLayout);
+
+		// customized functions
+		Node* findRoot();
 	};
 }

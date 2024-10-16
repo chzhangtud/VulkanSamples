@@ -27,11 +27,16 @@ struct GeometryNode {
 	int textureIndexOcclusion;
 };
 layout(binding = 4, set = 0) buffer GeometryNodes { GeometryNode nodes[]; } geometryNodes;
-
 layout(binding = 5, set = 0) uniform sampler2D textures[];
-
 #include "bufferreferences.glsl"
 #include "geometrytypes.glsl"
+
+struct CallableData {
+    vec3 outColor;
+    int geometryIndex;
+};
+
+layout(location = 0) callableDataEXT CallableData data;
 
 void main()
 {
