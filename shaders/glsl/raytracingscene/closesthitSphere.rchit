@@ -2,7 +2,14 @@
 #extension GL_EXT_ray_tracing : require
 #extension GL_EXT_nonuniform_qualifier : enable
 
-layout(location = 0) rayPayloadInEXT vec3 hitValue;
+struct RayPayload {
+	vec3 color;
+	float distance;
+	vec3 normal;
+	float reflector;
+};
+
+layout(location = 0) rayPayloadInEXT RayPayload rayPayload;
 layout(location = 2) rayPayloadEXT bool shadowed;
 hitAttributeEXT vec2 attribs;
 
@@ -13,7 +20,7 @@ struct Sphere {
 	float radius;
 	vec4 color;
 };
-layout(binding = 6, set = 0) buffer Spheres { Sphere s[]; } spheres;
+layout(binding = 7, set = 0) buffer Spheres { Sphere s[]; } spheres;
 
 void main()
 {
@@ -25,5 +32,9 @@ void main()
 	// Basic lighting
 	vec3 lightVector = normalize(vec3(1.0, 1.0, 1.0));
 	float dot_product = max(dot(lightVector, worldNrm), 0.2);
-	hitValue = sphere.color.rgb * dot_product;
+	rayPayload.color = sphere.color.rgb * dot_product;
+
+	rayPayload.distance = gl_RayTmaxEXT;
+	rayPayload.normal = worldNrm;
+	rayPayload.reflector = gl_PrimitiveID == 1 ? 1.0 : 0.0;
 }

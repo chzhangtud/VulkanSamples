@@ -13,7 +13,15 @@
 #extension GL_EXT_scalar_block_layout : require
 #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
 
-layout(location = 0) rayPayloadInEXT vec3 hitValue;
+struct RayPayload {
+	vec3 color;
+	float distance;
+	vec3 normal;
+	float reflector;
+};
+
+layout(location = 0) rayPayloadInEXT RayPayload rayPayload;
+
 layout(location = 2) rayPayloadEXT bool shadowed;
 hitAttributeEXT vec2 attribs;
 
@@ -41,7 +49,7 @@ layout(location = 0) callableDataEXT CallableData data;
 void main()
 {
 	Triangle tri = unpackTriangle(gl_PrimitiveID, 112);
-	hitValue = vec3(tri.normal);
+	rayPayload.color = vec3(tri.normal);
 
 	GeometryNode geometryNode = geometryNodes.nodes[gl_GeometryIndexEXT];
 
@@ -51,7 +59,7 @@ void main()
 		color *= occlusion;
 	}
 
-	hitValue = color;
+	rayPayload.color = color;
 
 	// Shadow casting
 	float tmin = 0.001;
@@ -63,6 +71,6 @@ void main()
 	// Trace shadow ray and offset indices to match shadow hit/miss shader group indices
 //	traceRayEXT(topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT, 0xFF, 0, 0, 1, origin, tmin, lightVector, tmax, 2);
 //	if (shadowed) {
-//		hitValue *= 0.7;
+//		rayPayload.color *= 0.7;
 //	}
 }

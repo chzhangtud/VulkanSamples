@@ -13,6 +13,10 @@
 class VulkanExample : public VulkanRaytracingSample
 {
 public:
+	struct {
+		vks::TextureCubeMap envmap;
+	} textures;
+
 	AccelerationStructure bottomLevelAS{};
 	AccelerationStructure bottomLevelASSpheres{};
 	AccelerationStructure topLevelAS{};
@@ -116,6 +120,8 @@ public:
 			// destroy spheres
 			spheresBuffer.destroy();
 			aabbsBuffer.destroy();
+
+			textures.envmap.destroy();
 		}
 	}
 
@@ -572,8 +578,9 @@ public:
 			vks::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR, 4),
 			// Binding 5: All images used by the glTF model
 			vks::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR, 5, imageCount),
+			vks::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR, 6),
 			// ---------------- Spheres buffer ---------------------//
-			vks::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_INTERSECTION_BIT_KHR, 6),
+			vks::initializers::descriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_INTERSECTION_BIT_KHR, 7),
 			// ---------------- End Spheres buffer ---------------------//
 		};
 
@@ -747,7 +754,7 @@ public:
 			vks::initializers::writeDescriptorSet(descriptorSet, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 4, &geometryNodesBuffer.descriptor),
 			// --------------------- Spheres --------------------- //
 			// Binding 5: Spheres buffer
-			vks::initializers::writeDescriptorSet(descriptorSet, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 6, &spheresBufferDescriptor),
+			vks::initializers::writeDescriptorSet(descriptorSet, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 7, &spheresBufferDescriptor),
 			// --------------------- End Spheres --------------------- //
 		};
 
@@ -769,6 +776,9 @@ public:
 		writeDescriptorImgArray.dstSet = descriptorSet;
 		writeDescriptorImgArray.pImageInfo = textureDescriptors.data();
 		writeDescriptorSets.push_back(writeDescriptorImgArray);
+
+		VkWriteDescriptorSet iblTextureDescriptor = vks::initializers::writeDescriptorSet(descriptorSet, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6, &textures.envmap.descriptor);
+		writeDescriptorSets.push_back(iblTextureDescriptor);
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, VK_NULL_HANDLE);
 	}
@@ -936,6 +946,9 @@ public:
 			root->scale *= 10.0f;
 			root->translation += glm::vec3(5.0f, 0.0f, 0.0f);
 		}
+
+		// Load HDR cube map
+		textures.envmap.loadFromFile(getAssetPath() + "textures/hdr/uffizi_cube.ktx", VK_FORMAT_R16G16B16A16_SFLOAT, vulkanDevice, queue);
 	}
 
 	void prepare()

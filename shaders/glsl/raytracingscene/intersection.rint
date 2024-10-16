@@ -12,7 +12,7 @@ struct Sphere {
 	float radius;
 	vec4 color;
 };
-layout(binding = 6, set = 0) buffer Spheres { Sphere s[]; } spheres;
+layout(binding = 7, set = 0) buffer Spheres { Sphere s[]; } spheres;
 
 // Ray-sphere intersection
 // By Inigo Quilez, from https://iquilezles.org/articles/spherefunctions/
